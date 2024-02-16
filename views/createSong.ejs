@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add a Song</title>
+  <link rel="stylesheet" href="/createSong.css">
+  <link rel="stylesheet" href="/login.css">
+</head>
+
+<body>
+  <form class="main" action="/song/create" method="post" enctype="multipart/form-data" name="filename">
+    <h1>Add a new song</h1>
+    <hr>
+    <div class="login">
+      <label for="name">Song Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="artist">Artist:</label>
+      <input type="text" id="artist" name="artist" required>
+
+      <label for="audioFile">Audio File:</label>
+      <input type="file" id="audioFile" name="audioFile" accept=".mp3" required>
+
+      <label for="thumbnailFile">Thumbnail:</label>
+      <input type="file" id="thumbnailFile" name="thumbnailFile" accept=".jpg, .jpeg, .png" required>
+
+      <button type="submit">Add Song</button>
+    </div>
+  </form>
+</body>
+
+</html>

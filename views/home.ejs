@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/utility.css">
+    <title>Spotify - Web Player: Music for everyone</title>
+</head>
+
+<body>
+    <div class="container flex bg-black">
+        <div class="left">
+            <div class="home bg-grey rounded m-1 p-1">
+                <div class="logo"><img width="110" class="invert" src="../images/logo.svg" alt=""></div>
+                <ul>
+                    <li><img class="invert" src="../images/home.svg" alt="home">Home</li>
+                    <li>
+                        <img class="invert" src="../images/search.svg" alt="home" onclick="searchSongs()"><input type="text" id="searchInput" placeholder="Search for songs">
+                    </li>
+                </ul>
+            </div>
+
+            <div class="library bg-grey rounded m-1 p-1">
+                <div class="heading">
+                    <img class="invert" src="../images/library.svg" alt="">
+                    <h2>
+                        Your Library
+                    </h2>
+                </div>
+
+                <div class="songList">
+                    <ul id="songListContainer">
+                        <% songs.forEach(song=> { %>
+                            <li
+                                onclick="playSong('<%= song.audioUrl %>', '<%= song.name %>','<%= song.artist %>', '<%= song.thumbnailUrl %>')">
+                                <%= song.name %>
+                            </li>
+                            <% }); %>
+                    </ul>
+                </div>
+
+
+                <div class="footer">
+                    <div><a href="https://www.spotify.com/jp/legal/"><span>Legal</span></a></div>
+                    <div><a href="https://www.spotify.com/jp/privacy/"><span>Privacy Center</span></a></div>
+                    <div><a href="https://www.spotify.com/jp/legal/privacy-policy/"><span>Privacy Policy</span></a>
+                    </div>
+                    <div><a href="https://www.spotify.com/jp/legal/cookies-policy/"><span>Cookies</span></a></div>
+                    <div><a href="https://www.spotify.com/jp/legal/privacy-policy/#s3"><span>About Ads</span></a></div>
+                    <div><a href="https://www.spotify.com/jp/accessibility/"><span>Accessibility</span></a></div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="right bg-grey rounded">
+            <div class="header">
+                <div class="buttons">
+                    <a href="#" class="user-button" id="dropdown" onclick="toggleDropdown()">
+                        <%= username.charAt(0).toUpperCase() %>
+                    </a>
+                    <div id="dropdownContent" class="dropdown-content">
+                        <a href="/auth/login">Logout</a>
+                    </div>
+                </div>
+            </div>
+            <div class="spotifyPlaylists">
+                <div class="songCard" id="songCard" style="display: none;">
+                    <img id="songThumbnail" src="" alt="Song Thumbnail">
+                    <div class="songDetails">
+                        <h2 id="songName"></h2>
+                        <p id="artistName"></p>
+                    </div>
+                </div>
+                <div class="cardContainer">
+                    <div class="card">
+                        <div class="play">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#000000" stroke-width="1.5" />
+                                <path
+                                    d="M15.4531 12.3948C15.3016 13.0215 14.5857 13.4644 13.1539 14.3502C11.7697 15.2064 11.0777 15.6346 10.5199 15.4625C10.2893 15.3913 10.0793 15.2562 9.90982 15.07C9.5 14.6198 9.5 13.7465 9.5 12C9.5 10.2535 9.5 9.38018 9.90982 8.92995C10.0793 8.74381 10.2893 8.60868 10.5199 8.53753C11.0777 8.36544 11.7697 8.79357 13.1539 9.64983C14.5857 10.5356 15.3016 10.9785 15.4531 11.6052C15.5156 11.8639 15.5156 12.1361 15.4531 12.3948Z"
+                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <img src="https://i.scdn.co/image/ab67706f0000000254473de875fea0fd19d39037" alt=""
+                            usemap="#imageMap">
+                        <h2>lofi beats</h2>
+                        <p>chill beats,lofi vibes,new tracks every week...</p>
+                    </div>
+                </div>
+                <div class="add-button" onclick="handleAddButtonClick()">
+                    <img src="../images/add.svg" alt="Add Song">
+                </div>
+                <div class="playbar">
+                    <div class="seekbar">
+                        <div id="progressBar" class="circle">
+
+                        </div>
+                    </div>
+                    <div class="abovebar">
+
+
+                        <div class="songinfo">
+                            <h3 id="currentSongName"></h3>
+                        </div>
+                        <div class="songbuttons">
+
+                            <div class="songbuttons">
+                                <div id="previous" class="control-button" onclick="previousSong()">
+                                    <img width="35" src="../images/prevsong.svg" alt="Previous">
+                                </div>
+                                <div id="playPause" class="control-button" onclick="togglePlay()">
+                                    <img id="playPauseIcon" width="35" src="../images/play.svg" alt="Play">
+                                </div>
+                                <div id="next" class="control-button" onclick="nextSong()">
+                                    <img width="35" src="../images/nextsong.svg" alt="Next">
+                                </div>
+                            </div>
+
+                        </div>
+                        <audio id="audioPlayer"></audio>
+                        <div class="timevol">
+
+
+                            <div class="songtime">
+
+                            </div>
+                            <div class="volume">
+                                <img width="25" src="../images/volume.svg" alt="Volume">
+                                <div class="range">
+                                    <input type="range" name="volume" id="volumeRange"
+                                        onchange="changeVolume(this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentSongIndex = 0;
+        const songs = JSON.parse('<%- JSON.stringify(songs) %>');
+        function playSong(audioUrl, songName, artistName, thumbnailUrl) {
+            const audioElement = document.getElementById('audioPlayer');
+            const songThumbnail = document.getElementById('songThumbnail');
+            const songNameElement = document.getElementById('songName');
+            const artistNameElement = document.getElementById('artistName');
+            const songCard = document.getElementById('songCard');
+            const progressBar = document.getElementById('progressBar');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+
+            if (audioElement) {
+                audioElement.src = audioUrl;
+                audioElement.addEventListener('canplay', function () {
+                    audioElement.play();
+                    playPauseIcon.src = "../images/pause.svg";
+                });
+                songThumbnail.src = thumbnailUrl;
+                songNameElement.innerText = songName;
+                artistNameElement.innerText = artistName;
+                songCard.style.display = 'flex';
+
+                audioElement.addEventListener('timeupdate', updateProgressBar);
+
+            } else {
+                console.error("Audio element not found");
+            }
+        }
+        function updateProgressBar() {
+            const audioElement = document.getElementById('audioPlayer');
+            const progressBar = document.getElementById('progressBar');
+            const percentage = (audioElement.currentTime / audioElement.duration) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+        function previousSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            playSelectedSong();
+        }
+
+        function togglePlay() {
+            const audioElement = document.getElementById('audioPlayer');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+
+            if (audioElement.paused) {
+                audioElement.play();
+                playPauseIcon.src = "../images/pause.svg";
+            } else {
+                audioElement.pause();
+                playPauseIcon.src = "../images/play.svg";
+            }
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            playSelectedSong();
+        }
+        function playSelectedSong() {
+            const selectedSong = songs[currentSongIndex];
+            playSong(selectedSong.audioUrl, selectedSong.name, selectedSong.artist, selectedSong.thumbnailUrl);
+        }
+        function changeVolume(value) {
+            const audioElement = document.querySelector('audio');
+            audioElement.volume = value / 100;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('dropdownContent').style.display = 'none';
+        });
+
+        function toggleDropdown() {
+            var dropdownContent = document.getElementById('dropdownContent');
+            dropdownContent.style.display = (dropdownContent.style.display === 'none') ? 'block' : 'none';
+        }
+
+        window.onclick = function (event) {
+            if (!event.target.matches('#dropdown')) {
+                var dropdownContent = document.getElementById('dropdownContent');
+                if (dropdownContent.style.display === 'block') {
+                    dropdownContent.style.display = 'none';
+                }
+            }
+        };
+        function handleAddButtonClick() {
+            window.open('/song/create', '_blank');
+        }
+        function searchSongs() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value;
+
+    
+    fetch(`/song/search?query=${query}`)
+      .then(response => response.json())
+      .then(results => {
+        const songListContainer = document.getElementById('songListContainer');
+        songListContainer.innerHTML = '';
+
+        results.forEach(song => {
+          songListContainer.innerHTML += `<li onclick="playSong('${song.audioUrl}', '${song.name}', '${song.artist}', '${song.thumbnailUrl}')">${song.name}</li>`;
+        });
+      })
+      .catch(error => console.error(error));
+  }
+    </script>
+</body>
+
+</html>

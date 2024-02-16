@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/utility.css">
+    <title>Liked Songs</title>
+</head>
+
+<body>
+    <h1>Liked Songs</h1>
+    <ul>
+        <% likedSongs.forEach(song => { %>
+            <li>
+                <%= song.name %>
+            </li>
+        <% }); %>
+    </ul>
+</body>
+
+</html>
