@@ -6,7 +6,6 @@ const passport = require("passport");
 const User = require("./models/User");
 const authRoutes = require("./routes/auth");
 const songRoutes=require("./routes/song");
-const playlistRoutes = require("./routes/playlist");
 const app = express();
 const bodyParser = require("body-parser");
 require('dotenv').config();
@@ -61,7 +60,6 @@ app.use('/uploads', express.static('uploads'));
 
 app.use("/auth", authRoutes);
 app.use("/song",songRoutes);
-app.use("/playlist", playlistRoutes);
 app.listen(port, () => {
   console.log("app is running");
 });

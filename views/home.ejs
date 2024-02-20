@@ -17,7 +17,8 @@
                 <ul>
                     <li><img class="invert" src="../images/home.svg" alt="home">Home</li>
                     <li>
-                        <img class="invert" src="../images/search.svg" alt="home" onclick="searchSongs()"><input type="text" id="searchInput" placeholder="Search for songs">
+                        <img class="invert" src="../images/search.svg" alt="home" onclick="searchSongs()"><input
+                            type="text" id="searchInput" placeholder="Search for songs">
                     </li>
                 </ul>
             </div>
@@ -31,14 +32,20 @@
                 </div>
 
                 <div class="songList">
+                    <!-- Inside the songListContainer in your songList div -->
                     <ul id="songListContainer">
                         <% songs.forEach(song=> { %>
-                            <li
-                                onclick="playSong('<%= song.audioUrl %>', '<%= song.name %>','<%= song.artist %>', '<%= song.thumbnailUrl %>')">
+                            <li>
                                 <%= song.name %>
+                                <span
+                                    onclick="playSong('<%= song.audioUrl %>', '<%= song.name %>','<%= song.artist %>', '<%= song.thumbnailUrl %>')">
+                                    <img src="../images/play.svg" alt="Play">
+                                </span>
+                                
                             </li>
                             <% }); %>
                     </ul>
+
                 </div>
 
 
@@ -74,23 +81,7 @@
                         <p id="artistName"></p>
                     </div>
                 </div>
-                <div class="cardContainer">
-                    <div class="card">
-                        <div class="play">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none">
-                                <circle cx="12" cy="12" r="10" stroke="#000000" stroke-width="1.5" />
-                                <path
-                                    d="M15.4531 12.3948C15.3016 13.0215 14.5857 13.4644 13.1539 14.3502C11.7697 15.2064 11.0777 15.6346 10.5199 15.4625C10.2893 15.3913 10.0793 15.2562 9.90982 15.07C9.5 14.6198 9.5 13.7465 9.5 12C9.5 10.2535 9.5 9.38018 9.90982 8.92995C10.0793 8.74381 10.2893 8.60868 10.5199 8.53753C11.0777 8.36544 11.7697 8.79357 13.1539 9.64983C14.5857 10.5356 15.3016 10.9785 15.4531 11.6052C15.5156 11.8639 15.5156 12.1361 15.4531 12.3948Z"
-                                    stroke="#000000" stroke-width="1.5" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <img src="https://i.scdn.co/image/ab67706f0000000254473de875fea0fd19d39037" alt=""
-                            usemap="#imageMap">
-                        <h2>lofi beats</h2>
-                        <p>chill beats,lofi vibes,new tracks every week...</p>
-                    </div>
-                </div>
+                
                 <div class="add-button" onclick="handleAddButtonClick()">
                     <img src="../images/add.svg" alt="Add Song">
                 </div>
@@ -170,6 +161,7 @@
                 console.error("Audio element not found");
             }
         }
+
         function updateProgressBar() {
             const audioElement = document.getElementById('audioPlayer');
             const progressBar = document.getElementById('progressBar');
@@ -228,22 +220,22 @@
             window.open('/song/create', '_blank');
         }
         function searchSongs() {
-    const searchInput = document.getElementById('searchInput');
-    const query = searchInput.value;
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value;
 
-    
-    fetch(`/song/search?query=${query}`)
-      .then(response => response.json())
-      .then(results => {
-        const songListContainer = document.getElementById('songListContainer');
-        songListContainer.innerHTML = '';
 
-        results.forEach(song => {
-          songListContainer.innerHTML += `<li onclick="playSong('${song.audioUrl}', '${song.name}', '${song.artist}', '${song.thumbnailUrl}')">${song.name}</li>`;
-        });
-      })
-      .catch(error => console.error(error));
-  }
+            fetch(`/song/search?query=${query}`)
+                .then(response => response.json())
+                .then(results => {
+                    const songListContainer = document.getElementById('songListContainer');
+                    songListContainer.innerHTML = '';
+
+                    results.forEach(song => {
+                        songListContainer.innerHTML += `<li onclick="playSong('${song.audioUrl}', '${song.name}', '${song.artist}', '${song.thumbnailUrl}')">${song.name}</li>`;
+                    });
+                })
+                .catch(error => console.error(error));
+        }
     </script>
 </body>
 
