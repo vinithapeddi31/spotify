@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/utility.css">
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>             const socket = io(); 
+    </script>
     <title>Spotify - Web Player: Music for everyone</title>
 </head>
 
@@ -32,16 +35,15 @@
                 </div>
 
                 <div class="songList">
-                    <!-- Inside the songListContainer in your songList div -->
                     <ul id="songListContainer">
                         <% songs.forEach(song=> { %>
                             <li>
                                 <%= song.name %>
-                                <span
-                                    onclick="playSong('<%= song.audioUrl %>', '<%= song.name %>','<%= song.artist %>', '<%= song.thumbnailUrl %>')">
-                                    <img src="../images/play.svg" alt="Play">
-                                </span>
-                                
+                                    <span
+                                        onclick="window.musicFunctions.playSong('<%= song.audioUrl %>', '<%= song.name %>','<%= song.artist %>', '<%= song.thumbnailUrl %>')">
+                                        <img src="../images/play.svg" alt="Play">
+                                    </span>
+
                             </li>
                             <% }); %>
                     </ul>
@@ -81,7 +83,7 @@
                         <p id="artistName"></p>
                     </div>
                 </div>
-                
+
                 <div class="add-button" onclick="handleAddButtonClick()">
                     <img src="../images/add.svg" alt="Add Song">
                 </div>
@@ -100,13 +102,14 @@
                         <div class="songbuttons">
 
                             <div class="songbuttons">
-                                <div id="previous" class="control-button" onclick="previousSong()">
+                                <div id="previous" class="control-button"
+                                    onclick="window.musicFunctions.previousSong()">
                                     <img width="35" src="../images/prevsong.svg" alt="Previous">
                                 </div>
-                                <div id="playPause" class="control-button" onclick="togglePlay()">
+                                <div id="playPause" class="control-button" onclick="window.musicFunctions.togglePlay()">
                                     <img id="playPauseIcon" width="35" src="../images/play.svg" alt="Play">
                                 </div>
-                                <div id="next" class="control-button" onclick="nextSong()">
+                                <div id="next" class="control-button" onclick="window.musicFunctions.nextSong()">
                                     <img width="35" src="../images/nextsong.svg" alt="Next">
                                 </div>
                             </div>
@@ -123,7 +126,7 @@
                                 <img width="25" src="../images/volume.svg" alt="Volume">
                                 <div class="range">
                                     <input type="range" name="volume" id="volumeRange"
-                                        onchange="changeVolume(this.value)">
+                                        onchange="window.musicFunctions.changeVolume(this.value)">
                                 </div>
                             </div>
                         </div>
@@ -135,69 +138,62 @@
     <script>
         let currentSongIndex = 0;
         const songs = JSON.parse('<%- JSON.stringify(songs) %>');
-        function playSong(audioUrl, songName, artistName, thumbnailUrl) {
-            const audioElement = document.getElementById('audioPlayer');
-            const songThumbnail = document.getElementById('songThumbnail');
-            const songNameElement = document.getElementById('songName');
-            const artistNameElement = document.getElementById('artistName');
-            const songCard = document.getElementById('songCard');
-            const progressBar = document.getElementById('progressBar');
-            const playPauseIcon = document.getElementById('playPauseIcon');
-
-            if (audioElement) {
-                audioElement.src = audioUrl;
-                audioElement.addEventListener('canplay', function () {
-                    audioElement.play();
-                    playPauseIcon.src = "../images/pause.svg";
-                });
-                songThumbnail.src = thumbnailUrl;
-                songNameElement.innerText = songName;
-                artistNameElement.innerText = artistName;
-                songCard.style.display = 'flex';
-
-                audioElement.addEventListener('timeupdate', updateProgressBar);
-
-            } else {
-                console.error("Audio element not found");
-            }
-        }
-
         function updateProgressBar() {
-            const audioElement = document.getElementById('audioPlayer');
-            const progressBar = document.getElementById('progressBar');
-            const percentage = (audioElement.currentTime / audioElement.duration) * 100;
-            progressBar.style.width = percentage + '%';
+            window.musicFunctions.updateProgressBar();
         }
-        function previousSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
-            playSelectedSong();
-        }
+        const musicFunctions = {
+            emitPlayEvent: function (audioUrl, songName, artistName, thumbnailUrl) {
+                socket.emit("play", { audioUrl, songName, artistName, thumbnailUrl });
+            },
+            emitUpdateProgressBarEvent: function () {
+                socket.emit("updateProgressBar");
+            },
 
-        function togglePlay() {
-            const audioElement = document.getElementById('audioPlayer');
-            const playPauseIcon = document.getElementById('playPauseIcon');
+            emitTogglePlayEvent: function () {
+                socket.emit("togglePlay");
+            },
 
-            if (audioElement.paused) {
-                audioElement.play();
-                playPauseIcon.src = "../images/pause.svg";
-            } else {
-                audioElement.pause();
-                playPauseIcon.src = "../images/play.svg";
+            emitPlaySelectedSongEvent: function () {
+                socket.emit("playSelectedSong");
+            },
+
+            emitChangeVolumeEvent: function (value) {
+                socket.emit("changeVolume", value);
+            },
+            emitNextEvent: function () {
+                socket.emit("next");
+            },
+            emitPreviousEvent: function () {
+                socket.emit("previous");
+            },
+            updateProgressBar: function () {
+                this.emitUpdateProgressBarEvent();
+            },
+            playSong: function (audioUrl, songName, artistName, thumbnailUrl) {
+                this.emitPlayEvent(audioUrl, songName, artistName, thumbnailUrl);
+            },
+
+            nextSong: function () {
+                this.emitNextEvent();
+            },
+            playSelectedSong: function () {
+                this.emitPlaySelectedSongEvent();
+            },
+            togglePlay: function () {
+                this.emitTogglePlayEvent();
+            },
+            changeVolume: function (value) {
+                this.emitChangeVolumeEvent(value);
+            },
+
+            previousSong: function () {
+                this.emitPreviousEvent();
             }
-        }
-
-        function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
-            playSelectedSong();
-        }
-        function playSelectedSong() {
-            const selectedSong = songs[currentSongIndex];
-            playSong(selectedSong.audioUrl, selectedSong.name, selectedSong.artist, selectedSong.thumbnailUrl);
-        }
-        function changeVolume(value) {
-            const audioElement = document.querySelector('audio');
-            audioElement.volume = value / 100;
-        }
+        };
+        document.addEventListener("DOMContentLoaded", function () {
+            window.socket = socket;
+            window.musicFunctions = musicFunctions;
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('dropdownContent').style.display = 'none';
@@ -231,11 +227,81 @@
                     songListContainer.innerHTML = '';
 
                     results.forEach(song => {
-                        songListContainer.innerHTML += `<li onclick="playSong('${song.audioUrl}', '${song.name}', '${song.artist}', '${song.thumbnailUrl}')">${song.name}</li>`;
+                        songListContainer.innerHTML += `<li onclick="window.musicFunctions.playSong('${song.audioUrl}', '${song.name}', '${song.artist}', '${song.thumbnailUrl}')">${song.name}</li>`;
                     });
                 })
                 .catch(error => console.error(error));
         }
+
+        socket.on("play", (data) => {
+            console.log("data is",data)
+            const audioElement = document.getElementById('audioPlayer');
+            const songThumbnail = document.getElementById('songThumbnail');
+            const songNameElement = document.getElementById('songName');
+            const artistNameElement = document.getElementById('artistName');
+            const songCard = document.getElementById('songCard');
+            const progressBar = document.getElementById('progressBar');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            
+            if (audioElement) {
+                audioElement.src = data.audioUrl;
+                audioElement.addEventListener('canplay', function () {
+                    audioElement.play();
+                    playPauseIcon.src = "../images/pause.svg";
+                });
+                songThumbnail.src = data.thumbnailUrl;
+                songNameElement.innerText = data.songName;
+                artistNameElement.innerText = data.artistName;
+                songCard.style.display = 'flex';
+
+                audioElement.addEventListener('timeupdate', updateProgressBar);
+
+            } else {
+                console.error("Audio element not found");
+            }
+        })
+        socket.on("updateProgressBar", () => {
+            const audioElement = document.getElementById('audioPlayer');
+            const progressBar = document.getElementById('progressBar');
+            const percentage = (audioElement.currentTime / audioElement.duration) * 100;
+            progressBar.style.width = percentage + '%';
+        })
+        socket.on("next", () => {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            musicFunctions.playSelectedSong();
+        })
+        socket.on("previous", () => {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            musicFunctions.playSelectedSong();
+        });
+        socket.on("playSelectedSong", () => {
+            const song = songs[currentSongIndex];
+            musicFunctions.playSong(song.audioUrl, song.name, song.artist, song.thumbnailUrl);
+            
+        })    
+
+        socket.on("changeVolume", (value) => {
+            const audioElement = document.querySelector('audio');
+            const volumeRange = document.getElementById('volumeRange');
+
+            audioElement.volume = value / 100;
+            volumeRange.value = value;
+
+        })
+        socket.on("togglePlay", () => {
+            const audioElement = document.getElementById('audioPlayer');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+
+            if (audioElement.paused) {
+                audioElement.play();
+                playPauseIcon.src = "../images/pause.svg";
+            } else {
+                audioElement.pause();
+                playPauseIcon.src = "../images/play.svg";
+            }
+
+        })
+            
     </script>
 </body>
 

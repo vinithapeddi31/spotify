@@ -393,14 +393,6 @@ body {
     object-fit: contain;
 }
 
-.join-room {
-    bottom: 150px;
-    left: 40px;
-    width: 80px;
-    height: 25px;
-    color: black;
-    background-color: white;
-}
 
 @media (max-width: 1200px) {
     .left {

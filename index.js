@@ -1,12 +1,16 @@
 const express = require("express");
+const http = require("http");
+const socketIO = require("socket.io");
 const mongoose = require("mongoose");
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const passport = require("passport");
 const User = require("./models/User");
 const authRoutes = require("./routes/auth");
-const songRoutes=require("./routes/song");
+const songRoutes = require("./routes/song");
 const app = express();
+const server = http.createServer(app); // Create an HTTP server
+const io = socketIO(server);
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const SpotifyWebApi = require('spotify-web-api-node');
@@ -59,8 +63,38 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
 app.use("/auth", authRoutes);
-app.use("/song",songRoutes);
-app.listen(port, () => {
+app.use("/song", songRoutes);
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("play", (data) => {
+    io.emit("play", data);
+  });
+  socket.on("updateProgressBar", () => {
+    io.emit("updateProgressBar");
+  });
+  socket.on("togglePlay", () => {
+    io.emit("togglePlay");
+  });
+  socket.on("playSelectedSong", () => {
+    io.emit("playSelectedSong");
+  });
+  socket.on("changeVolume", (value) => {
+    io.emit("changeVolume", value);
+  });
+  socket.on("next", () => {
+    io.emit("next");
+  });
+  socket.on("previous", () => {
+    io.emit("previous");
+  });
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
+server.listen(port, () => {
   console.log("app is running");
 });
-module.exports=app;
+module.exports = app;
